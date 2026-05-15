@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Académie Sportive</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f3;
+      --bg-tertiary: #efeeea;
+      --text-primary: #1a1a18;
+      --text-secondary: #6b6b67;
+      --text-tertiary: #9a9a95;
+      --border-light: rgba(0,0,0,0.10);
+      --border-mid: rgba(0,0,0,0.18);
+      --border-strong: rgba(0,0,0,0.28);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #252523;
+        --bg-tertiary: #2e2e2b;
+        --text-primary: #f0f0ec;
+        --text-secondary: #a0a09a;
+        --text-tertiary: #6a6a65;
+        --border-light: rgba(255,255,255,0.08);
+        --border-mid: rgba(255,255,255,0.14);
+        --border-strong: rgba(255,255,255,0.22);
+      }
+    }
+    body {
+      font-family: var(--font);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .app {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 880px;
+      overflow: hidden;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.08);
+    }
+    .header {
+      padding: 1.25rem 1.75rem;
+      border-bottom: 0.5px solid var(--border-light);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-icon {
+      width: 42px; height: 42px; background: #E1F5EE;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+    .header p { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+    .admin-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; font-size: 13px;
+      background: var(--bg-secondary); border: 0.5px solid var(--border-mid);
+      border-radius: var(--radius-md); cursor: pointer; color: var(--text-secondary);
+      font-family: var(--font); transition: all 0.12s;
+    }
+    .admin-btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+    .admin-btn.active { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+
+    .tabs {
+      display: flex; padding: 0 1.75rem;
+      border-bottom: 0.5px solid var(--border-light);
+    }
+    .tab-btn {
+      padding: 11px 18px; font-size: 14px; font-weight: 400;
+      color: var(--text-secondary); background: none; border: none;
+      border-bottom: 2.5px solid transparent; cursor: pointer;
+      transition: all 0.15s; position: relative; bottom: -0.5px;
+      display: flex; align-items: center; gap: 7px; font-family: var(--font);
+    }
+    .tab-btn.active { color: var(--text-primary); font-weight: 600; border-bottom-color: var(--text-primary); }
+    .tab-btn:hover:not(.active) { color: var(--text-primary); background: var(--bg-secondary); }
+    .tab-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    .content { padding: 1.5rem 1.75rem; }
+
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem; gap: 10px; color: var(--text-secondary); font-size: 14px;
+    }
+    .spinner {
+      width: 20px; height: 20px; border: 2px solid var(--border-mid);
+      border-top-color: var(--text-secondary); border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .section-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .section-title { font-size: 15px; font-weight: 600; }
+    .btn-add {
+      display: flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 13px;
+      background: var(--bg-primary); border: 0.5px solid var(--border-mid);
+      border-radius: var(--radius-md); cursor: pointer; color: var(--text-primary);
+      font-family: var(--font); transition: background 0.12s;
+    }
+    .btn-add:hover { background: var(--bg-secondary); }
+
+    .disciplines-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px; margin-bottom: 1.5rem;
+    }
+    .discipline-card {
+      background: var(--bg-primary); border: 0.5px solid var(--border-light);
+      border-radius: var(--radius-lg); padding: 1rem; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .discipline-card:hover { border-color: var(--border-strong); background: var(--bg-secondary); }
+    .discipline-card.active { border-color: var(--border-strong); background: var(--bg-secondary); }
+    .disc-icon {
+      width: 38px; height: 38px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 10px;
+    }
+    .discipline-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .discipline-card p { font-size: 12px; color: var(--text-secondary); }
+
+    .divider { height: 0.5px; background: var(--border-light); margin: 1.5rem 0; }
+
+    .resources-tabs { display: flex; gap: 8px; margin-bottom: 1rem; }
+    .res-tab {
+      padding: 6px 14px; font-size: 13px; border-radius: 99px;
+      border: 0.5px solid var(--border-light); background: none; cursor: pointer;
+      color: var(--text-secondary); font-family: var(--font); transition: all 0.12s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .res-tab.active { background: var(--bg-secondary); border-color: var(--border-mid); color: var(--text-primary); font-weight: 600; }
+
+    .resources-list { display: flex; flex-direction: column; gap: 8px; }
+    .resource-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+      background: var(--bg-primary); border: 0.5px solid var(--border-light);
+      border-radius: var(--radius-md); transition: border-color 0.12s;
+    }
+    .resource-item:hover { border-color: var(--border-mid); }
+    .resource-icon {
+      width: 38px; height: 38px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 18px;
+    }
+    .resource-icon.ppt { background: #FAECE7; color: #D85A30; }
+    .resource-icon.vid { background: #E6F1FB; color: #378ADD; }
+    .resource-info { flex: 1; min-width: 0; }
+    .resource-name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .resource-meta { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+    .resource-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .res-btn {
+      padding: 5px 10px; font-size: 12px; border-radius: var(--radius-md);
+      border: 0.5px solid var(--border-light); background: none; cursor: pointer;
+      color: var(--text-secondary); font-family: var(--font);
+      display: flex; align-items: center; gap: 4px; transition: background 0.12s;
+    }
+    .res-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+    .res-del { color: #A32D2D; }
+    .res-del:hover { background: #FCEBEB !important; }
+
+    .empty-state {
+      text-align: center; padding: 2rem; color: var(--text-secondary); font-size: 14px;
+      border: 0.5px dashed var(--border-mid); border-radius: var(--radius-lg); line-height: 1.7;
+    }
+    .empty-state i { font-size: 32px; display: block; margin-bottom: 8px; opacity: 0.35; }
+
+    /* MODALS */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg-primary); border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border-mid); padding: 1.5rem;
+      width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+    }
+    .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+    .modal label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 5px; margin-top: 14px; }
+    .modal label:first-of-type { margin-top: 0; }
+    .modal input, .modal select {
+      width: 100%; padding: 8px 10px; font-size: 14px;
+      border: 0.5px solid var(--border-mid); border-radius: var(--radius-md);
+      background: var(--bg-secondary); color: var(--text-primary);
+      font-family: var(--font); outline: none;
+    }
+    .modal input:focus, .modal select:focus { border-color: var(--border-strong); }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; }
+    .btn-cancel {
+      padding: 8px 16px; font-size: 14px; border: 0.5px solid var(--border-mid);
+      border-radius: var(--radius-md); background: none; cursor: pointer;
+      color: var(--text-secondary); font-family: var(--font);
+    }
+    .btn-confirm {
+      padding: 8px 18px; font-size: 14px; border: none; border-radius: var(--radius-md);
+      background: var(--text-primary); color: var(--bg-primary);
+      cursor: pointer; font-weight: 600; font-family: var(--font);
+    }
+    .btn-confirm:hover { opacity: 0.85; }
+    .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .info-box {
+      background: #E6F1FB; border-radius: var(--radius-md); padding: 12px 14px;
+      font-size: 13px; color: #185FA5; line-height: 1.6; margin-top: 10px;
+    }
+
+    /* VIEWERS */
+    .viewer-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.88); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .viewer-overlay.open { display: flex; }
+
+    .video-viewer { width: 92vw; max-width: 900px; background: #111; border-radius: var(--radius-lg); overflow: hidden; }
+    .video-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: rgba(255,255,255,0.07);
+    }
+    .video-title { font-size: 14px; font-weight: 600; color: #fff; }
+    .video-close { background: none; border: none; color: rgba(255,255,255,0.65); cursor: pointer; font-size: 22px; line-height: 1; }
+    .video-close:hover { color: #fff; }
+    .video-body { position: relative; padding-top: 56.25%; background: #000; }
+    .video-body iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+
+    .ppt-viewer {
+      width: 92vw; max-width: 960px; background: var(--bg-primary);
+      border-radius: var(--radius-lg); overflow: hidden;
+      max-height: 92vh; display: flex; flex-direction: column;
+    }
+    .ppt-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-bottom: 0.5px solid var(--border-light); flex-shrink: 0;
+    }
+    .ppt-title { font-size: 14px; font-weight: 600; }
+    .ppt-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 22px; line-height: 1; }
+    .ppt-body { flex: 1; overflow: hidden; }
+    .ppt-body iframe { width: 100%; height: 560px; border: none; display: block; }
+    .ppt-no-preview { text-align: center; padding: 3rem; color: var(--text-secondary); }
+    .ppt-no-preview i { font-size: 48px; display: block; margin-bottom: 16px; opacity: 0.35; }
+    .ppt-no-preview p { font-size: 14px; margin-bottom: 16px; line-height: 1.6; }
+    .open-btn {
+      padding: 10px 20px; font-size: 14px; background: var(--text-primary); color: var(--bg-primary);
+      border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600;
+      font-family: var(--font); display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+    }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--text-primary); color: var(--bg-primary);
+      padding: 10px 20px; border-radius: 99px; font-size: 14px;
+      z-index: 999; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .app { border-radius: 0; border: none; min-height: 100vh; }
+      .tabs { overflow-x: auto; }
+      .tab-btn { white-space: nowrap; }
+      .resource-actions .res-btn span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-icon">🏅</div>
+      <div>
+        <h1>Académie Sportive</h1>
+        <p>Athlétisme — Benjamins · Pupilles · Minimes</p>
+      </div>
+    </div>
+    <button class="admin-btn" id="admin-toggle-btn" onclick="toggleAdminPanel()">
+      <i class="ti ti-lock"></i> <span id="admin-btn-label">Admin</span>
+    </button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchCat('benjamin')">
+      <span class="tab-dot" style="background:#1D9E75"></span>Benjamins
+    </button>
+    <button class="tab-btn" onclick="switchCat('pupille')">
+      <span class="tab-dot" style="background:#378ADD"></span>Pupilles
+    </button>
+    <button class="tab-btn" onclick="switchCat('minime')">
+      <span class="tab-dot" style="background:#D85A30"></span>Minimes
+    </button>
+  </div>
+
+  <div class="content" id="main-content">
+    <div class="loading"><div class="spinner"></div> Chargement…</div>
+  </div>
+</div>
+
+<!-- Modal admin login -->
+<div class="modal-overlay" id="modal-admin">
+  <div class="modal">
+    <h2><i class="ti ti-shield-lock"></i>Accès administrateur</h2>
+    <label>Mot de passe</label>
+    <input type="password" id="admin-password" placeholder="Mot de passe admin" onkeydown="if(event.key==='Enter')checkAdmin()" />
+    <p style="font-size:12px;color:var(--text-tertiary);margin-top:8px">Permet d'ajouter et supprimer des ressources.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-admin')">Annuler</button>
+      <button class="btn-confirm" onclick="checkAdmin()">Connexion</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal PPT -->
+<div class="modal-overlay" id="modal-ppt">
+  <div class="modal">
+    <h2><i class="ti ti-presentation"></i>Ajouter une présentation</h2>
+    <label>Titre</label>
+    <input type="text" id="ppt-title-in" placeholder="ex: Règles du sprint…" />
+    <label>Lien Google Drive ou Google Slides</label>
+    <input type="url" id="ppt-url-in" placeholder="https://drive.google.com/file/d/…" />
+    <div class="info-box">
+      <strong>📎 Comment obtenir le lien :</strong><br>
+      1. Ouvrez votre fichier sur Google Drive<br>
+      2. Clic droit → <em>Obtenir le lien</em> → <em>Tout le monde peut voir</em><br>
+      3. Copiez et collez le lien ici
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-ppt')">Annuler</button>
+      <button class="btn-confirm" id="ppt-save-btn" onclick="savePPT()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Vidéo -->
+<div class="modal-overlay" id="modal-video">
+  <div class="modal">
+    <h2><i class="ti ti-video"></i>Ajouter une vidéo</h2>
+    <label>Titre</label>
+    <input type="text" id="vid-title-in" placeholder="ex: Démonstration technique…" />
+    <label>Source</label>
+    <select id="vid-source" onchange="toggleVidSource()">
+      <option value="youtube">YouTube</option>
+      <option value="drive">Google Drive</option>
+    </select>
+    <label id="vid-url-label">URL YouTube</label>
+    <input type="url" id="vid-url-in" placeholder="https://www.youtube.com/watch?v=…" />
+    <div class="info-box" id="vid-drive-info" style="display:none">
+      <strong>📎 Lien Google Drive :</strong><br>
+      1. Ouvrez votre vidéo sur Google Drive<br>
+      2. Clic droit → <em>Obtenir le lien</em> → <em>Tout le monde peut voir</em><br>
+      3. Copiez et collez le lien ici
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-video')">Annuler</button>
+      <button class="btn-confirm" id="vid-save-btn" onclick="saveVideo()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Video viewer -->
+<div class="viewer-overlay" id="video-viewer">
+  <div class="video-viewer">
+    <div class="video-header">
+      <span class="video-title" id="vv-title"></span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <a id="vv-external" href="#" target="_blank" style="color:rgba(255,255,255,0.6);font-size:20px;line-height:1" title="Ouvrir dans un onglet"><i class="ti ti-external-link"></i></a>
+        <button class="video-close" onclick="closeViewer('video-viewer')"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
+    <div class="video-body" id="vv-body"></div>
+  </div>
+</div>
+
+<!-- PPT viewer -->
+<div class="viewer-overlay" id="ppt-viewer">
+  <div class="ppt-viewer">
+    <div class="ppt-header">
+      <span class="ppt-title" id="pv-title"></span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <a id="pv-external" href="#" target="_blank" style="color:var(--text-secondary);font-size:20px;line-height:1" title="Ouvrir dans un onglet"><i class="ti ti-external-link"></i></a>
+        <button class="ppt-close" onclick="closeViewer('ppt-viewer')"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
+    <div class="ppt-body" id="pv-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDpq2sA-uE0CDLqUgTqk4a4ykI9u1KXBwQ",
+  authDomain: "academie-sportive-f543d.firebaseapp.com",
+  projectId: "academie-sportive-f543d",
+  storageBucket: "academie-sportive-f543d.firebasestorage.app",
+  messagingSenderId: "888367451772",
+  appId: "1:888367451772:web:7ffbeb79a4ade713f643f9"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
+// ── CONFIGURATION ────────────────────────────────────
+const ADMIN_PASSWORD = "atlas2025"; // ← Changez ce mot de passe !
+
+const DISCIPLINES = [
+  { name: 'Sprint',           icon: '⚡' },
+  { name: 'Haies',            icon: '🚧' },
+  { name: 'Demi-fond',        icon: '🏃' },
+  { name: 'Saut en hauteur',  icon: '🆙' },
+  { name: 'Saut en longueur', icon: '↗️' },
+  { name: 'Poids',            icon: '🔵' },
+  { name: 'Javelot',          icon: '🎯' },
+  { name: 'Disque',           icon: '🥏' },
+  { name: 'Psychomotricité',  icon: '🧠' },
+];
+
+const COLORS = {
+  benjamin: { bg: '#E1F5EE', icon: '#1D9E75' },
+  pupille:  { bg: '#E6F1FB', icon: '#378ADD' },
+  minime:   { bg: '#FAECE7', icon: '#D85A30' },
+};
+
+const CATS = ['benjamin', 'pupille', 'minime'];
+
+// ── STATE ─────────────────────────────────────────────
+let currentCat = 'benjamin';
+let currentDiscIdx = null;
+let resTab = { benjamin: 'ppts', pupille: 'ppts', minime: 'ppts' };
+let isAdmin = false;
+let dbData = { benjamin: {}, pupille: {}, minime: {} };
+
+// ── FIRESTORE ─────────────────────────────────────────
+function discKey(name) { return name.replace(/[^a-zA-Z0-9]/g, '_'); }
+
+async function loadCat(cat) {
+  const snap = await getDoc(doc(db, 'categories', cat));
+  dbData[cat] = snap.exists() ? snap.data() : {};
+}
+
+async function saveCat(cat) {
+  await setDoc(doc(db, 'categories', cat), dbData[cat]);
+}
+
+function getResources(cat, discName, type) {
+  const k = discKey(discName);
+  return dbData[cat][k]?.[type] || [];
+}
+
+async function addResource(cat, discName, type, item) {
+  const k = discKey(discName);
+  if (!dbData[cat][k]) dbData[cat][k] = { ppts: [], videos: [] };
+  dbData[cat][k][type] = [...(dbData[cat][k][type] || []), item];
+  await saveCat(cat);
+}
+
+async function deleteResource(cat, discName, type, idx) {
+  const k = discKey(discName);
+  dbData[cat][k][type].splice(idx, 1);
+  await saveCat(cat);
+}
+
+// ── INIT ──────────────────────────────────────────────
+async function init() {
+  try {
+    await Promise.all(CATS.map(loadCat));
+    render();
+  } catch(e) {
+    document.getElementById('main-content').innerHTML =
+      `<div class="empty-state"><i class="ti ti-wifi-off"></i>Erreur de connexion.<br><small>${e.message}</small></div>`;
+  }
+}
+init();
+
+// ── ADMIN ─────────────────────────────────────────────
+window.toggleAdminPanel = () => {
+  if (isAdmin) {
+    isAdmin = false;
+    document.getElementById('admin-toggle-btn').classList.remove('active');
+    document.getElementById('admin-btn-label').textContent = 'Admin';
+    document.querySelector('#admin-toggle-btn i').className = 'ti ti-lock';
+    showToast('Mode admin désactivé');
+    render();
+  } else {
+    document.getElementById('admin-password').value = '';
+    openModal('modal-admin');
+    setTimeout(() => document.getElementById('admin-password').focus(), 100);
+  }
+};
+
+window.checkAdmin = () => {
+  const pw = document.getElementById('admin-password').value;
+  if (pw === ADMIN_PASSWORD) {
+    isAdmin = true;
+    closeModal('modal-admin');
+    document.getElementById('admin-toggle-btn').classList.add('active');
+    document.getElementById('admin-btn-label').textContent = 'Admin ✓';
+    document.querySelector('#admin-toggle-btn i').className = 'ti ti-lock-open';
+    showToast('Mode admin activé ✓');
+    render();
+  } else {
+    const inp = document.getElementById('admin-password');
+    inp.style.borderColor = '#E24B4A';
+    inp.value = '';
+    setTimeout(() => inp.style.borderColor = '', 1500);
+  }
+};
+
+// ── RENDER ────────────────────────────────────────────
+window.switchCat = (cat) => {
+  currentCat = cat;
+  currentDiscIdx = null;
+  document.querySelectorAll('.tab-btn').forEach((b, i) =>
+    b.classList.toggle('active', CATS[i] === cat));
+  render();
+};
+
+window.selectDisc = (i) => {
+  currentDiscIdx = currentDiscIdx === i ? null : i;
+  render();
+};
+
+window.setResTab = (tab) => { resTab[currentCat] = tab; render(); };
+
+function render() {
+  const c = COLORS[currentCat];
+
+  const discHTML = DISCIPLINES.map((d, i) => {
+    const total = getResources(currentCat, d.name, 'ppts').length +
+                  getResources(currentCat, d.name, 'videos').length;
+    return `<div class="discipline-card${currentDiscIdx === i ? ' active' : ''}" onclick="selectDisc(${i})">
+      <div class="disc-icon" style="background:${c.bg};color:${c.icon}">${d.icon}</div>
+      <h3>${d.name}</h3>
+      <p>${total} ressource${total !== 1 ? 's' : ''}</p>
+    </div>`;
+  }).join('');
+
+  let resourcesHTML = '';
+  if (currentDiscIdx !== null) {
+    const d = DISCIPLINES[currentDiscIdx];
+    const rt = resTab[currentCat];
+    const resources = getResources(currentCat, d.name, rt);
+    const pptCount = getResources(currentCat, d.name, 'ppts').length;
+    const vidCount = getResources(currentCat, d.name, 'videos').length;
+
+    const addBtns = isAdmin ? `<div style="display:flex;gap:6px">
+      <button class="btn-add" onclick="openModal('modal-ppt')"><i class="ti ti-presentation"></i> PPT</button>
+      <button class="btn-add" onclick="openModal('modal-video')"><i class="ti ti-video"></i> Vidéo</button>
+    </div>` : '';
+
+    const items = resources.length
+      ? resources.map((r, ri) => {
+          const isPPT = rt === 'ppts';
+          const del = isAdmin
+            ? `<button class="res-btn res-del" onclick="doDelete(${ri})" title="Supprimer"><i class="ti ti-trash"></i></button>` : '';
+          return `<div class="resource-item">
+            <div class="resource-icon ${isPPT ? 'ppt' : 'vid'}">
+              <i class="ti ${isPPT ? 'ti-presentation' : 'ti-player-play'}"></i>
+            </div>
+            <div class="resource-info">
+              <div class="resource-name">${r.title}</div>
+              <div class="resource-meta">${r.date}</div>
+            </div>
+            <div class="resource-actions">
+              <button class="res-btn" onclick="${isPPT ? `openPPT(${ri})` : `openVideo(${ri})`}">
+                <i class="ti ${isPPT ? 'ti-eye' : 'ti-player-play'}"></i>
+                <span>${isPPT ? 'Voir' : 'Lire'}</span>
+              </button>
+              ${del}
+            </div>
+          </div>`;
+        }).join('')
+      : `<div class="empty-state">
+          <i class="ti ${rt === 'ppts' ? 'ti-presentation' : 'ti-video'}"></i>
+          Aucune ${rt === 'ppts' ? 'présentation' : 'vidéo'} pour cette discipline
+          ${isAdmin ? '<br><small style="opacity:0.6">Utilisez les boutons ci-dessus pour en ajouter</small>' : ''}
+        </div>`;
+
+    resourcesHTML = `
+      <div class="divider"></div>
+      <div class="section-bar">
+        <span class="section-title">${d.icon} ${d.name}</span>
+        ${addBtns}
+      </div>
+      <div class="resources-tabs">
+        <button class="res-tab${rt === 'ppts' ? ' active' : ''}" onclick="setResTab('ppts')">
+          <i class="ti ti-presentation"></i> Présentations (${pptCount})
+        </button>
+        <button class="res-tab${rt === 'videos' ? ' active' : ''}" onclick="setResTab('videos')">
+          <i class="ti ti-video"></i> Vidéos (${vidCount})
+        </button>
+      </div>
+      <div class="resources-list">${items}</div>`;
+  }
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="section-bar"><span class="section-title">Disciplines</span></div>
+    <div class="disciplines-grid">${discHTML}</div>
+    ${resourcesHTML}`;
+}
+
+// ── ADD / DELETE ──────────────────────────────────────
+window.savePPT = async () => {
+  const title = document.getElementById('ppt-title-in').value.trim();
+  const url   = document.getElementById('ppt-url-in').value.trim();
+  if (!title || !url) { showToast('Remplissez tous les champs'); return; }
+  const btn = document.getElementById('ppt-save-btn');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  try {
+    await addResource(currentCat, DISCIPLINES[currentDiscIdx].name, 'ppts',
+      { title, url, date: new Date().toLocaleDateString('fr-BE') });
+    document.getElementById('ppt-title-in').value = '';
+    document.getElementById('ppt-url-in').value = '';
+    closeModal('modal-ppt');
+    resTab[currentCat] = 'ppts';
+    showToast('Présentation ajoutée ✓');
+    render();
+  } catch(e) { showToast('Erreur : ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Ajouter';
+};
+
+window.toggleVidSource = () => {
+  const src = document.getElementById('vid-source').value;
+  document.getElementById('vid-url-label').textContent = src === 'drive' ? 'Lien Google Drive' : 'URL YouTube';
+  document.getElementById('vid-url-in').placeholder = src === 'drive'
+    ? 'https://drive.google.com/file/d/…' : 'https://www.youtube.com/watch?v=…';
+  document.getElementById('vid-drive-info').style.display = src === 'drive' ? 'block' : 'none';
+};
+
+window.saveVideo = async () => {
+  const title  = document.getElementById('vid-title-in').value.trim();
+  const source = document.getElementById('vid-source').value;
+  const url    = document.getElementById('vid-url-in').value.trim();
+  if (!title || !url) { showToast('Remplissez tous les champs'); return; }
+  const btn = document.getElementById('vid-save-btn');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  try {
+    await addResource(currentCat, DISCIPLINES[currentDiscIdx].name, 'videos',
+      { title, source, url, date: new Date().toLocaleDateString('fr-BE') });
+    document.getElementById('vid-title-in').value = '';
+    document.getElementById('vid-url-in').value = '';
+    closeModal('modal-video');
+    resTab[currentCat] = 'videos';
+    showToast('Vidéo ajoutée ✓');
+    render();
+  } catch(e) { showToast('Erreur : ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Ajouter';
+};
+
+window.doDelete = async (ri) => {
+  if (!confirm('Supprimer cette ressource ?')) return;
+  const rt = resTab[currentCat];
+  try {
+    await deleteResource(currentCat, DISCIPLINES[currentDiscIdx].name, rt, ri);
+    showToast('Ressource supprimée');
+    render();
+  } catch(e) { showToast('Erreur : ' + e.message); }
+};
+
+// ── VIEWERS ───────────────────────────────────────────
+window.openVideo = (ri) => {
+  const v = getResources(currentCat, DISCIPLINES[currentDiscIdx].name, 'videos')[ri];
+  document.getElementById('vv-title').textContent = v.title;
+  document.getElementById('vv-external').href = v.url;
+  let html = '';
+  if (v.source === 'youtube') {
+    const id = extractYTId(v.url);
+    html = id
+      ? `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allow="autoplay;encrypted-media;fullscreen" allowfullscreen></iframe>`
+      : `<div style="color:#fff;position:absolute;inset:0;display:flex;align-items:center;justify-content:center">URL invalide</div>`;
+  } else {
+    const id = extractDriveId(v.url);
+    html = id
+      ? `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay"></iframe>`
+      : `<div style="color:#fff;position:absolute;inset:0;display:flex;align-items:center;justify-content:center">Lien Drive invalide</div>`;
+  }
+  document.getElementById('vv-body').innerHTML = html;
+  document.getElementById('video-viewer').classList.add('open');
+};
+
+window.openPPT = (ri) => {
+  const p = getResources(currentCat, DISCIPLINES[currentDiscIdx].name, 'ppts')[ri];
+  document.getElementById('pv-title').textContent = p.title;
+  document.getElementById('pv-external').href = p.url;
+  const driveId = extractDriveId(p.url);
+  let html = '';
+  if (driveId) {
+    html = `<iframe src="https://drive.google.com/file/d/${driveId}/preview"></iframe>`;
+  } else if (p.url.includes('docs.google.com')) {
+    const embed = p.url.replace('/edit', '/embed').replace('/pub', '/embed');
+    html = `<iframe src="${embed}"></iframe>`;
+  } else {
+    html = `<div class="ppt-no-preview">
+      <i class="ti ti-presentation"></i>
+      <p>Impossible d'afficher directement ce fichier.</p>
+      <a href="${p.url}" target="_blank" class="open-btn"><i class="ti ti-external-link"></i> Ouvrir le fichier</a>
+    </div>`;
+  }
+  document.getElementById('pv-body').innerHTML = html;
+  document.getElementById('ppt-viewer').classList.add('open');
+};
+
+window.closeViewer = (id) => {
+  document.getElementById(id).classList.remove('open');
+  const b = id === 'video-viewer' ? 'vv-body' : 'pv-body';
+  document.getElementById(b).innerHTML = '';
+};
+
+// ── UTILS ─────────────────────────────────────────────
+function extractYTId(url) {
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function extractDriveId(url) {
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+  return m ? m[1] : null;
+}
+
+window.openModal  = (id) => document.getElementById(id).classList.add('open');
+window.closeModal = (id) => document.getElementById(id).classList.remove('open');
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeViewer('video-viewer');
+    closeViewer('ppt-viewer');
+    ['modal-admin','modal-ppt','modal-video'].forEach(closeModal);
+  }
+});
+</script>
+</body>
+</html>
